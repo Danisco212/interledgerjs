@@ -137,27 +137,33 @@ const mockCreateIncomingPayment = (account: Account, incomingAmount?: Amount) =>
     .post(`${accountUrl.pathname}/incoming-payments`)
     .matchHeader('Accept', 'application/json')
     .matchHeader('Content-Type', 'application/json')
-    .reply(201, (uri, requestBody) => {
-      return {
-        id: `${accountUrl.origin}/incoming-payments`,
-        accountId: account.id,
-        state: IncomingPaymentState.Pending,
-        incomingAmount: incomingAmount
-          ? {
-              value: incomingAmount.value.toString(),
-              assetCode: incomingAmount.assetCode,
-              assetScale: incomingAmount.assetScale,
-            }
-          : requestBody['incomingAmount'],
-        receivedAmount: {
-          value: '0',
-          assetCode: account.assetCode,
-          assetScale: account.assetScale,
-        },
-        ilpAddress,
-        sharedSecret: sharedSecret.toString('base64'),
+    .reply(
+      201,
+      (
+        uri,
+        requestBody: { incomingAmount: { value: string; assetCode: string; assetScale: number } }
+      ) => {
+        return {
+          id: `${accountUrl.origin}/incoming-payments`,
+          accountId: account.id,
+          state: IncomingPaymentState.Pending,
+          incomingAmount: incomingAmount
+            ? {
+                value: incomingAmount.value.toString(),
+                assetCode: incomingAmount.assetCode,
+                assetScale: incomingAmount.assetScale,
+              }
+            : requestBody['incomingAmount'],
+          receivedAmount: {
+            value: '0',
+            assetCode: account.assetCode,
+            assetScale: account.assetScale,
+          },
+          ilpAddress,
+          sharedSecret: sharedSecret.toString('base64'),
+        }
       }
-    })
+    )
 }
 
 describe('open payments', () => {
